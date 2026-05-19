@@ -226,70 +226,46 @@ export default {
 
 <style scoped>
 .page-header {
-  margin-bottom: 1.5rem;
-}
-
-.page-header h2 {
-  margin-bottom: 0.25rem;
-}
-
-.page-header p {
-  color: #64748b;
-  font-size: 0.875rem;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #0f172a;
-  margin: 0;
+  margin-bottom: var(--space-8);
 }
 
 .search-box {
   position: relative;
   display: flex;
   align-items: center;
-  min-width: 300px;
+  min-width: 280px;
 }
 
 .search-icon {
   position: absolute;
   left: 0.75rem;
-  width: 18px;
-  height: 18px;
-  color: #94a3b8;
+  width: 16px;
+  height: 16px;
+  color: var(--text-faint);
   pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.5rem 2.5rem 0.5rem 2.5rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  padding: 0.5rem 2.25rem 0.5rem 2.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
-  color: #0f172a;
-  background: #f8fafc;
-  transition: all 0.2s;
+  color: var(--text-primary);
+  background: var(--surface-raised);
+  transition: all 0.15s;
+  font-family: inherit;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  background: white;
+  border-color: var(--sidebar-accent);
+  background: var(--surface);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .search-input::placeholder {
-  color: #94a3b8;
+  color: var(--text-faint);
 }
 
 .clear-search {
@@ -302,38 +278,26 @@ export default {
   background: transparent;
   border: none;
   border-radius: 4px;
-  color: #94a3b8;
+  color: var(--text-faint);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
 .clear-search:hover {
-  background: #e2e8f0;
-  color: #64748b;
+  background: var(--border);
+  color: var(--text-muted);
 }
 
 .clear-search svg {
-  width: 18px;
-  height: 18px;
-}
-
-.loading,
-.error {
-  padding: 2rem;
-  text-align: center;
-  color: #64748b;
-}
-
-.error {
-  color: #ef4444;
+  width: 16px;
+  height: 16px;
 }
 
 .clickable-row {
   cursor: pointer;
-  transition: background-color 0.15s ease;
 }
 
-.clickable-row:hover {
-  background: #eff6ff !important;
+.clickable-row:hover td {
+  background: var(--color-info-bg) !important;
 }
 </style>
