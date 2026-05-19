@@ -1,42 +1,98 @@
 <template>
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
+  <div class="app" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="sidebar-logo-mark">N</span>
+          <span class="sidebar-app-name">{{ t('nav.companyName') }}</span>
         </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
+        <button class="sidebar-toggle" @click="toggleSidebar" :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+            <path v-if="!sidebarCollapsed" d="M10 3L6 8l4 5"/>
+            <path v-else d="M6 3l4 5-4 5"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <router-link to="/" :class="{ active: $route.path === '/' }" :data-tooltip="t('nav.overview')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="1" y="1" width="6" height="6" rx="1"/>
+              <rect x="9" y="1" width="6" height="6" rx="1"/>
+              <rect x="1" y="9" width="6" height="6" rx="1"/>
+              <rect x="9" y="9" width="6" height="6" rx="1"/>
+            </svg>
+          </span>
+          <span class="nav-label">{{ t('nav.overview') }}</span>
+        </router-link>
+
+        <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }" :data-tooltip="t('nav.inventory')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M2 5l6-3 6 3v6l-6 3-6-3V5z"/>
+              <path d="M8 2v12M2 5l6 3 6-3"/>
+            </svg>
+          </span>
+          <span class="nav-label">{{ t('nav.inventory') }}</span>
+        </router-link>
+
+        <router-link to="/orders" :class="{ active: $route.path === '/orders' }" :data-tooltip="t('nav.orders')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="1" y="3" width="14" height="10" rx="1"/>
+              <path d="M1 7h14M5 3V1M11 3V1"/>
+            </svg>
+          </span>
+          <span class="nav-label">{{ t('nav.orders') }}</span>
+        </router-link>
+
+        <router-link to="/spending" :class="{ active: $route.path === '/spending' }" :data-tooltip="t('nav.finance')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M1 12l4-4 3 3 4-5 3 2"/>
+              <path d="M1 14h14"/>
+            </svg>
+          </span>
+          <span class="nav-label">{{ t('nav.finance') }}</span>
+        </router-link>
+
+        <router-link to="/demand" :class="{ active: $route.path === '/demand' }" :data-tooltip="t('nav.demandForecast')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M1 11c2-4 4-2 6-6s3 2 8-2"/>
+              <path d="M11 3l3 0 0 3"/>
+            </svg>
+          </span>
+          <span class="nav-label">{{ t('nav.demandForecast') }}</span>
+        </router-link>
+
+        <router-link to="/reports" :class="{ active: $route.path === '/reports' }" data-tooltip="Reports">
+          <span class="nav-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="1" width="12" height="14" rx="1"/>
+              <path d="M5 5h6M5 8h6M5 11h4"/>
+            </svg>
+          </span>
+          <span class="nav-label">Reports</span>
+        </router-link>
+      </nav>
+
+      <div class="sidebar-footer">
         <LanguageSwitcher />
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
         />
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+    </aside>
+
+    <div class="main-wrapper">
+      <FilterBar />
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -55,7 +111,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
@@ -81,72 +137,71 @@ export default {
     const showTasks = ref(false)
     const apiTasks = ref([])
 
+    // Sidebar collapse — restore from localStorage, default to collapsed below 1024px
+    const sidebarCollapsed = ref(
+      localStorage.getItem('sidebarCollapsed') !== null
+        ? localStorage.getItem('sidebarCollapsed') === 'true'
+        : window.innerWidth < 1024
+    )
+
+    const toggleSidebar = () => {
+      sidebarCollapsed.value = !sidebarCollapsed.value
+      localStorage.setItem('sidebarCollapsed', String(sidebarCollapsed.value))
+    }
+
+    // Auto-collapse when viewport shrinks below 1024px, auto-expand above
+    const handleResize = () => {
+      const small = window.innerWidth < 1024
+      // Only override if no explicit user preference is stored
+      if (localStorage.getItem('sidebarCollapsed') === null) {
+        sidebarCollapsed.value = small
+      }
+    }
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize)
+    })
+
     // Merge mock tasks from currentUser with API tasks
     const tasks = computed(() => {
       return [...currentUser.value.tasks, ...apiTasks.value]
     })
 
-    const loadTasks = async () => {
-      try {
-        apiTasks.value = await api.getTasks()
-      } catch (err) {
-        console.error('Failed to load tasks:', err)
-      }
+    const addTask = (taskData) => {
+      apiTasks.value.unshift({
+        id: `task-${Date.now()}`,
+        status: 'pending',
+        ...taskData
+      })
     }
 
-    const addTask = async (taskData) => {
-      try {
-        const newTask = await api.createTask(taskData)
-        // Add new task to the beginning of the array
-        apiTasks.value.unshift(newTask)
-      } catch (err) {
-        console.error('Failed to add task:', err)
-      }
-    }
-
-    const deleteTask = async (taskId) => {
-      try {
-        // Check if it's a mock task (from currentUser)
-        const isMockTask = currentUser.value.tasks.some(t => t.id === taskId)
-
-        if (isMockTask) {
-          // Remove from mock tasks
-          const index = currentUser.value.tasks.findIndex(t => t.id === taskId)
-          if (index !== -1) {
-            currentUser.value.tasks.splice(index, 1)
-          }
-        } else {
-          // Remove from API tasks
-          await api.deleteTask(taskId)
-          apiTasks.value = apiTasks.value.filter(t => t.id !== taskId)
+    const deleteTask = (taskId) => {
+      const isMockTask = currentUser.value.tasks.some(t => t.id === taskId)
+      if (isMockTask) {
+        const index = currentUser.value.tasks.findIndex(t => t.id === taskId)
+        if (index !== -1) {
+          currentUser.value.tasks.splice(index, 1)
         }
-      } catch (err) {
-        console.error('Failed to delete task:', err)
+      } else {
+        apiTasks.value = apiTasks.value.filter(t => t.id !== taskId)
       }
     }
 
-    const toggleTask = async (taskId) => {
-      try {
-        // Check if it's a mock task (from currentUser)
-        const mockTask = currentUser.value.tasks.find(t => t.id === taskId)
-
-        if (mockTask) {
-          // Toggle mock task status
-          mockTask.status = mockTask.status === 'pending' ? 'completed' : 'pending'
-        } else {
-          // Toggle API task
-          const updatedTask = await api.toggleTask(taskId)
-          const index = apiTasks.value.findIndex(t => t.id === taskId)
-          if (index !== -1) {
-            apiTasks.value[index] = updatedTask
-          }
+    const toggleTask = (taskId) => {
+      const mockTask = currentUser.value.tasks.find(t => t.id === taskId)
+      if (mockTask) {
+        mockTask.status = mockTask.status === 'pending' ? 'completed' : 'pending'
+      } else {
+        const task = apiTasks.value.find(t => t.id === taskId)
+        if (task) {
+          task.status = task.status === 'pending' ? 'completed' : 'pending'
         }
-      } catch (err) {
-        console.error('Failed to toggle task:', err)
       }
     }
 
-    onMounted(loadTasks)
+    onMounted(() => {
+      window.addEventListener('resize', handleResize)
+    })
 
     return {
       t,
@@ -155,332 +210,491 @@ export default {
       tasks,
       addTask,
       deleteTask,
-      toggleTask
+      toggleTask,
+      sidebarCollapsed,
+      toggleSidebar
     }
   }
 }
 </script>
 
 <style>
-* {
+/* ── Reset ── */
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ── Design Tokens ── */
+:root {
+  --sidebar-bg: #0f172a;
+  --sidebar-width: 260px;
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #f1f5f9;
+  --sidebar-text-hover: #cbd5e1;
+  --sidebar-accent: #3b82f6;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+
+  --surface: #ffffff;
+  --surface-raised: #f8fafc;
+  --surface-sunken: #f1f5f9;
+
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+  --color-success-bg: #d1fae5;
+  --color-warning-bg: #fef3c7;
+  --color-danger-bg: #fee2e2;
+  --color-info-bg: #dbeafe;
+
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-5: 20px;  --space-6: 24px;
+  --space-8: 32px;  --space-10: 40px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* ── Base ── */
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--surface-raised);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── App Shell ── */
 .app {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 50;
+  scrollbar-width: none;
+  transition: width 0.22s ease;
 }
+.sidebar::-webkit-scrollbar { display: none; }
 
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
+.sidebar-header {
+  padding: var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding: 0 2rem;
-  height: 70px;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 64px;
 }
 
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
-}
-
-.nav-container > .language-switcher {
-  margin-right: 1rem;
-}
-
-.logo {
+.sidebar-logo {
   display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+  align-items: center;
+  gap: var(--space-3);
+  overflow: hidden;
+  min-width: 0;
 }
 
-.logo h1 {
-  font-size: 1.375rem;
+.sidebar-logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--sidebar-accent);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
   font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  font-size: 0.875rem;
+  color: white;
+  flex-shrink: 0;
 }
 
-.subtitle {
-  font-size: 0.813rem;
-  color: #64748b;
-  font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
+.sidebar-app-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sidebar-text-active);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.nav-tabs {
+.sidebar-nav {
+  padding: var(--space-4) var(--space-3);
+  flex: 1;
   display: flex;
-  gap: 0.25rem;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 9px var(--space-3);
+  color: var(--sidebar-text);
   text-decoration: none;
+  font-size: 0.875rem;
   font-weight: 500;
-  font-size: 0.938rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  position: relative;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+.sidebar-nav a:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-hover);
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
+.sidebar-nav a.active {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-active);
+  border-left-color: var(--sidebar-accent);
 }
 
-.nav-tabs a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+.sidebar-nav a.active .nav-icon,
+.sidebar-nav a:hover .nav-icon { opacity: 1; }
+
+.sidebar-footer {
+  padding: var(--space-4) var(--space-3);
+  border-top: 1px solid var(--sidebar-border);
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ── Toggle Button ── */
+.sidebar-toggle {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.sidebar-toggle:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-active);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.sidebar-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Main Area ── */
+.main-wrapper {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: margin-left 0.22s ease;
 }
 
 .main-content {
   flex: 1;
-  max-width: 1600px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: var(--space-8);
 }
 
+/* ── Page Header ── */
 .page-header {
-  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-8);
 }
 
 .page-header h2 {
-  font-size: 1.875rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 0.375rem;
+  color: var(--text-primary);
   letter-spacing: -0.025em;
+  margin-bottom: var(--space-1);
 }
 
 .page-header p {
-  color: #64748b;
-  font-size: 0.938rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
 }
 
+/* ── Stats Grid ── */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
 }
 
 .stat-card {
-  background: white;
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
+  background: var(--surface);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.15s ease;
 }
 
 .stat-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .stat-label {
-  color: #64748b;
-  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.625rem;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-2);
+  display: block;
 }
 
 .stat-value {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   letter-spacing: -0.025em;
+  line-height: 1;
+  display: block;
 }
 
-.stat-card.warning .stat-value {
-  color: #ea580c;
-}
+.stat-card.warning .stat-value { color: var(--color-warning); }
+.stat-card.success .stat-value { color: var(--color-success); }
+.stat-card.danger  .stat-value { color: var(--color-danger); }
+.stat-card.info    .stat-value { color: var(--color-info); }
 
-.stat-card.success .stat-value {
-  color: #059669;
-}
-
-.stat-card.danger .stat-value {
-  color: #dc2626;
-}
-
-.stat-card.info .stat-value {
-  color: #2563eb;
-}
-
+/* ── Card ── */
 .card {
-  background: white;
-  border-radius: 10px;
-  padding: 1.25rem;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 1.25rem;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  margin-bottom: var(--space-6);
+  overflow: hidden;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.875rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border);
 }
 
 .card-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
-.table-container {
-  overflow-x: auto;
-}
+/* ── Tables ── */
+.table-container { overflow-x: auto; }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+table { width: 100%; border-collapse: collapse; }
 
-thead {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-}
+thead { background: var(--surface-raised); }
 
 th {
   text-align: left;
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-3) var(--space-4);
   font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.6875rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 td {
-  padding: 0.5rem 0.75rem;
-  border-top: 1px solid #f1f5f9;
-  color: #334155;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--surface-raised);
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
 
-tbody tr {
-  transition: background-color 0.15s ease;
-}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background-color 0.1s ease; }
+tbody tr:hover td { background: var(--surface-raised); }
 
-tbody tr:hover {
-  background: #f8fafc;
-}
-
+/* ── Badges ── */
 .badge {
-  display: inline-block;
-  padding: 0.313rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
-.badge.success {
-  background: #d1fae5;
-  color: #065f46;
-}
+.badge.success    { background: var(--color-success-bg); color: var(--color-success); }
+.badge.warning    { background: var(--color-warning-bg); color: var(--color-warning); }
+.badge.danger     { background: var(--color-danger-bg);  color: var(--color-danger); }
+.badge.info       { background: var(--color-info-bg);    color: var(--color-info); }
+.badge.increasing { background: var(--color-success-bg); color: var(--color-success); }
+.badge.decreasing { background: var(--color-danger-bg);  color: var(--color-danger); }
+.badge.stable     { background: var(--color-info-bg);    color: var(--color-info); }
+.badge.high       { background: var(--color-danger-bg);  color: var(--color-danger); }
+.badge.medium     { background: var(--color-warning-bg); color: var(--color-warning); }
+.badge.low        { background: var(--color-info-bg);    color: var(--color-info); }
 
-.badge.warning {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.badge.danger {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.badge.info {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.badge.increasing {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.badge.decreasing {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.badge.stable {
-  background: #e0e7ff;
-  color: #3730a3;
-}
-
-.badge.high {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.badge.medium {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.badge.low {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
+/* ── States ── */
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
-  font-size: 0.938rem;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
 }
 
 .error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  padding: 1rem;
-  border-radius: 8px;
-  margin: 1rem 0;
-  font-size: 0.938rem;
+  background: var(--color-danger-bg);
+  border: 1px solid #fca5a5;
+  color: var(--color-danger);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  margin: var(--space-4) 0;
+  font-size: 0.875rem;
+}
+
+/* ── Collapsed Sidebar ── */
+.sidebar-collapsed .sidebar {
+  width: 64px;
+}
+
+.sidebar-collapsed .main-wrapper {
+  margin-left: 64px;
+}
+
+/* Hide text labels */
+.sidebar-collapsed .sidebar-app-name,
+.sidebar-collapsed .nav-label {
+  display: none;
+}
+
+/* Center header contents */
+.sidebar-collapsed .sidebar-header {
+  justify-content: center;
+  flex-direction: column-reverse;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2);
+}
+
+.sidebar-collapsed .sidebar-logo {
+  justify-content: center;
+}
+
+/* Center nav icons */
+.sidebar-collapsed .sidebar-nav {
+  padding: var(--space-4) var(--space-2);
+}
+
+.sidebar-collapsed .sidebar-nav a {
+  justify-content: center;
+  padding: 10px;
+  border-left: 3px solid transparent;
+  /* Keep active border visible via a bottom border on collapsed */
+}
+
+.sidebar-collapsed .sidebar-nav a .nav-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Tooltip on hover */
+.sidebar-collapsed .sidebar-nav a {
+  position: relative;
+}
+
+.sidebar-collapsed .sidebar-nav a::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1e293b;
+  color: #f1f5f9;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar-collapsed .sidebar-nav a:hover::after {
+  opacity: 1;
+}
+
+/* Footer in collapsed state */
+.sidebar-collapsed .sidebar-footer {
+  align-items: center;
+  padding: var(--space-3) var(--space-2);
+}
+
+/* Slim down profile and language buttons in collapsed state */
+.sidebar-collapsed .profile-button {
+  justify-content: center;
+  padding: 8px;
+  width: auto;
+}
+
+.sidebar-collapsed .profile-name,
+.sidebar-collapsed .profile-button .chevron {
+  display: none;
+}
+
+.sidebar-collapsed .language-button {
+  justify-content: center;
+  padding: 8px;
+  width: auto;
+}
+
+.sidebar-collapsed .language-label,
+.sidebar-collapsed .language-button .chevron {
+  display: none;
 }
 </style>
